@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rainfall Analysis</title>
+    <!-- Add Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Add Plotly.js library -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        /* Custom styles */
+        body {
+            /* background-color: #1e1e1e; */
+            background: linear-gradient(#141e30, #243b55);
+            color: #ccc;
+            font-family: Arial, sans-serif;
+            /* margin: 20px; */
+            min-height: 96vh;
+            transition: all 0.3s ease; /* Smooth transition for theme change */
+          
+        }
+
+        h1,
+        h2,
+        h3 {
+            color: inherit; /* Inherit color from parent */
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            border: 1px solid #333; /* Add border to tables */
+            margin-top: 20px; /* Adjust margin */
+        }
+
+        th,
+        td {
+            border: 1px solid #333;
+            text-align: left;
+            padding: 8px;
+        }
+
+        th {
+            background-color: #333;
+            color: rgb(204, 204, 204);
+        }
+
+        .rainfall-scale {
+            margin-top: 20px;
+        }
+
+        .rainfall-scale ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .rainfall-scale li {
+            margin-bottom: 10px;
+        }
+
+        .rainfall-scale span {
+            font-size: 20px;
+        }
+
+        .btn-primary {
+            background-color: #FF5733;
+            border-color:none;
+            width: auto; /* Adjust width */
+            padding: 6px 12px; /* Adjust padding */
+            font-size: 16px; /* Adjust font size */
+        }
+
+        .btn-primary:hover,
+        .btn-primary:focus {
+            background-color: #FF4500;
+            border-color: #FF4500;
+        }
+
+        .btn-secondary {
+            background-color: #FFC300;
+            border-color: #FFC300;
+            width: auto; /* Adjust width */
+            padding: 6px 12px; /* Adjust padding */
+            font-size: 16px; /* Adjust font size */
+        }
+
+        .btn-secondary:hover,
+        .btn-secondary:focus {
+            background-color: #FFB900;
+            border-color: #FFB900;
+        }
+
+        .btn-change-graph {
+            margin-top: 20px;
+        }
+
+        .graph-container {
+            margin-top: 40px;
+        }
+        .container{
+            background: rgba(0, 0, 0, .5);
+    box-sizing: border-box;
+    box-shadow: 0 15px 25px rgba(0, 0, 0, .6);
+    border-radius: 10px;
+            margin-top: 4vh;
+        }
+        /* Animation */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animated {
+            animation-duration: 1s;
+            animation-fill-mode: both;
+            animation-timing-function: ease-in-out;
+        }
+
+        .fadeInUp {
+            animation-name: fadeInUp;
+        }
+
+        /* Toggle switch */
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+            background-color: #ccc;
+            border-radius: 34px;
+            transition: background-color 0.3s ease;
+        }
+
+        .theme-toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .theme-toggle input:checked+.slider {
+            background-color: #2196F3;
+        }
+
+        .theme-toggle input:focus+.slider {
+            box-shadow: 0 0 1px #2196F3;
+        }
+
+        .theme-toggle input:checked+.slider:before {
+            transform: translateX(26px);
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+
+        /* Rounded sliders */
+        .slider.round {
+            border-radius: 34px;
+        }
+
+        .slider.round:before {
+            border-radius: 50%;
+        }
+
+        .btn-primary {
+    background-color: transparent;
+    border: none;
+    color: #03e9f4;
+    width: auto; /* Adjust width */
+    padding: 10px 20px; /* Adjust padding */
+    font-size: 16px; /* Adjust font size */
+    text-decoration: none; /* Remove default underline */
+    text-transform: uppercase;
+    overflow: hidden;
+    transition: .5s;
+ 
+    letter-spacing: 4px;
+    position: relative;
+}
+
+.btn-primary:hover {
+    background: #03e9f4;
+    color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 0 5px #03e9f4,
+                0 0 25px #03e9f4,
+                0 0 50px #03e9f4,
+                0 0 100px #03e9f4;
+}
+
+/* Animation for button */
+.btn-primary::before {
+    content: '';
+    position: absolute;
+    display: block;
+    background: #03e9f4;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: -1;
+    opacity: 0;
+    transition: all 0.5s;
+}
+
+
+.container form a {
+        position: relative;
+        display: inline-block;
+       
+        color: #03e9f4;
+        font-size: 16px;
+        text-decoration: none;
+        text-transform: uppercase;
+        overflow: hidden;
+        transition: .5s;
+        margin-top: 40px;
+        letter-spacing: 4px
+      }
+      
+      .container a:hover {
+        background: #03e9f4;
+        color: #fff;
+        border-radius: 5px;
+        box-shadow: 0 0 5px #03e9f4,
+                    0 0 25px #03e9f4,
+                    0 0 50px #03e9f4,
+                    0 0 100px #03e9f4;
+      }
+      
+      .container a span {
+        position: absolute;
+        display: block;
+      }
+      
+      .container a span:nth-child(1) {
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, #03e9f4);
+        animation: btn-anim1 1s linear infinite;
+      }
+      
+      @keyframes btn-anim1 {
+        0% {
+          left: -100%;
+        }
+        50%,100% {
+          left: 100%;
+        }
+      }
+      
+      .container a span:nth-child(2) {
+        top: -100%;
+        right: 0;
+        width: 2px;
+        height: 100%;
+        background: linear-gradient(180deg, transparent, #03e9f4);
+        animation: btn-anim2 1s linear infinite;
+        animation-delay: .25s
+      }
+      
+      @keyframes btn-anim2 {
+        0% {
+          top: -100%;
+        }
+        50%,100% {
+          top: 100%;
+        }
+      }
+      
+      .container a span:nth-child(3) {
+        bottom: 0;
+        right: -100%;
+        width: 100%;
+        height: 2px;
+        background: linear-gradient(270deg, transparent, #03e9f4);
+        animation: btn-anim3 1s linear infinite;
+        animation-delay: .5s
+      }
+      
+      @keyframes btn-anim3 {
+        0% {
+          right: -100%;
+        }
+        50%,100% {
+          right: 100%;
+        }
+      }
+      
+      .container a span:nth-child(4) {
+        bottom: -100%;
+        left: 0;
+        width: 2px;
+        height: 100%;
+        background: linear-gradient(360deg, transparent, #03e9f4);
+        animation: btn-anim4 1s linear infinite;
+        animation-delay: .75s
+      }
+      
+      @keyframes btn-anim4 {
+        0% {
+          bottom: -100%;
+        }
+        50%,100% {
+          bottom: 100%;
+        }
+      }
+
+      #results {
+    display: none;
+}
+
+
+
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1 class="text-center mb-5">Rainfall Analysis</h1>
+        <label class="theme-toggle">
+            <input type="checkbox" id="theme-toggle">
+            <span class="slider round"></span>
+        </label>
+
+        <!-- this form will do month/year analysis -->
+        <form id="data-form" class="animated fadeInUp">
+            <div class="form-row">
+                <div class="col-md-3 mb-3">
+                    <label for="from_year">From Year:</label>
+                    <input type="number" class="form-control" id="from_year" name="from_year" min="2011" max="2023" required>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="to_year">To Year:</label>
+                    <input type="number" class="form-control" id="to_year" name="to_year" min="2011" max="2023" required>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="from_month">From Month:</label>
+                    <input type="number" class="form-control" id="from_month" name="from_month" min="1" max="12" required>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="to_month">To Month:</label>
+                    <input type="number" class="form-control" id="to_month" name="to_month" min="1" max="12" required>
+                </div>
+            </div>
+
+            <a >
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+                <button type="submit" class="btn btn-primary">Go</button>
+                
+              </a>
+
+
+        </form>
+        <!-- this form will do date to date analysis -->
+        <form id="date-to-date-form" class="animated fadeInUp">
+            <div class="form-row">
+                <div class="col-md-5 mb-3">
+                    <label for="from_date">From Date:</label>
+                    <input type="date" class="form-control" id="from_date" name="from_date" required>
+                </div>
+                <div class="col-md-5 mb-3">
+                    <label for="to_date">To Date:</label>
+                    <input type="date" class="form-control" id="to_date" name="to_date" required>
+                </div>
+                <br>
+                <a href="#" onclick="submitDateToDateForm()" >
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <button type="button" class="btn btn-primary">Get Datewise analysis</button>
+                    
+                  </a>
+            </div>
+        </form>
+
+        <!-- for 2nd form results -->
+        <div id="date-to-date-graph"></div>
+        <br>
+        <br>
+        <br>
+        <div id="percentile-graph"></div>
+
+         <!-- for 1st form -->
+        <div id="results" class="graph-container animated fadeInUp">
+         
+            <h2>Total Rainfall by Month</h2>
+            <!-- Add a container for the total rainfall graph -->
+            <div id="total-rainfall-graph"></div>
+            <button onclick="changeGraphType('total-rainfall-graph')" class="btn btn-secondary btn-change-graph">Change Graph Type</button>
+            <table id="total-rainfall-table">
+                <thead>
+                    <tr>
+                        <th>Year</th>
+                        <th>Month</th>
+                        <th>Total Rainfall</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <h2 class="mt-5">Days with Rainfall by Month</h2>
+            <!-- Add a container for the days with rainfall graph -->
+            <div id="days-with-rainfall-graph"></div>
+            <button onclick="changeGraphType('days-with-rainfall-graph')" class="btn btn-secondary btn-change-graph">Change Graph Type</button>
+            <table id="days-with-rainfall-table">
+                <thead>
+                    <tr>
+                        <th>Year</th>
+                        <th>Month</th>
+                        <th>Days with Rainfall</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <h2 class="mt-5">Rainfall Categories by Year</h2>
+            <!-- Add a container for the rainfall categories graph -->
+            <div id="rainfall-categories-graph"></div>
+            <table id="rainfall-categories-table">
+                <thead>
+                    <tr>
+                        <th>Year</th>
+                        <th>Heavy Rainfall</th>
+                        <th>Very Heavy Rainfall</th>
+                        <th>Extremely Heavy Rainfall</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Add jQuery and Plotly.js -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#data-form').submit(function (event) {
+                event.preventDefault();
+                $('#results').show();
+                var formData = $(this).serialize();
+                $.ajax({
+                    type: 'POST',
+                    url: '/data',
+                    data: formData,
+                    success: function (response) {
+                        // Display results
+                        displayResults(response);
+                        // Render graphs
+                        renderGraphs(response);
+                        
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(error);
+                    }
+                });
+            });
+
+            function displayResults(data) {
+                // Display total rainfall
+                var totalRainfallHtml = "";
+                data.total_rainfall.forEach(function (item) {
+                    var totalRainfall = isNaN(item.Total_Rainfall) ? "N/A" : item.Total_Rainfall;
+                    totalRainfallHtml += `<tr><td>${item.Year}</td><td>${item.Month}</td><td>${totalRainfall}</td></tr>`;
+                });
+                $('#total-rainfall-table tbody').html(totalRainfallHtml);
+
+                // Display days with rainfall
+                var daysWithRainfallHtml = "";
+                data.days_with_rainfall.forEach(function (item) {
+                    var daysWithRainfall = isNaN(item.Days_with_Rainfall) ? "N/A" : item.Days_with_Rainfall;
+                    daysWithRainfallHtml += `<tr><td>${item.Year}</td><td>${item.Month}</td><td>${daysWithRainfall}</td></tr>`;
+                });
+                $('#days-with-rainfall-table tbody').html(daysWithRainfallHtml);
+
+                // Display rainfall categories
+                var rainfallCategoriesHtml = "";
+                data.rainfall_categories.forEach(function (item) {
+                    var heavyRainfall = isNaN(item.Heavy_Rainfall) ? "N/A" : item.Heavy_Rainfall;
+                    var veryHeavyRainfall = isNaN(item.Very_Heavy_Rainfall) ? "N/A" : item.Very_Heavy_Rainfall;
+                    var extremelyHeavyRainfall = isNaN(item.Extremely_Heavy_Rainfall) ? "N/A" : item.Extremely_Heavy_Rainfall;
+                    rainfallCategoriesHtml += `<tr><td>${item.Year}</td><td>${heavyRainfall}</td><td>${veryHeavyRainfall}</td><td>${extremelyHeavyRainfall}</td></tr>`;
+                });
+                $('#rainfall-categories-table tbody').html(rainfallCategoriesHtml);
+
+                // Display dates of very high and extremely high rainfall
+                var veryHighRainfallDatesHtml = "";
+                Object.keys(data.very_high_rainfall_dates).forEach(function (year) {
+                    veryHighRainfallDatesHtml += `<h3>Very High Rainfall Dates for ${year}:</h3>`;
+                    data.very_high_rainfall_dates[year].forEach(function (date) {
+                        veryHighRainfallDatesHtml += `<p>${date}</p>`;
+                    });
+                });
+                $('#results').append(veryHighRainfallDatesHtml);
+
+                var extremelyHighRainfallDatesHtml = "";
+                Object.keys(data.extremely_high_rainfall_dates).forEach(function (year) {
+                    extremelyHighRainfallDatesHtml += `<h3>Extremely High Rainfall Dates for ${year}:</h3>`;
+                    data.extremely_high_rainfall_dates[year].forEach(function (date) {
+                        extremelyHighRainfallDatesHtml += `<p>${date}</p>`;
+                    });
+                });
+                $('#results').append(extremelyHighRainfallDatesHtml);
+
+               // Check if the data is coming from the first form (data-form)
+                    if (data.percentile_95 && data.percentile_95_month && data.percentile_95_year) {
+                        // Display 95th percentile rainfall and its month/year
+                        console.log("Displaying 95th percentile rainfall data...");
+                        var percentile95Html = `<h2>95th Percentile Rainfall</h2>`;
+                        percentile95Html += `<p>Rainfall: ${data.percentile_95}</p>`;
+                        percentile95Html += `<p>Month/Year: ${data.percentile_95_month}/${data.percentile_95_year}</p>`;
+                        $('#results').append(percentile95Html);
+                    } else {
+                        console.log("No data available for 95th percentile rainfall.");
+                    }
+
+            }
+
+
+   // Function to change graph type
+   window.changeGraphType = function (graphId) {
+                var graphDiv = document.getElementById(graphId);
+                var graphData = graphDiv.data;
+                var layout = graphDiv.layout;
+                for (var i = 0; i < graphData.length; i++) {
+                    if (graphData[i].type === 'bar') {
+                        graphData[i].type = 'scatter';
+                        graphData[i].mode = 'lines+markers';
+                    } else {
+                        graphData[i].type = 'bar';
+                        graphData[i].mode = '';
+                    }
+                }
+                Plotly.newPlot(graphId, graphData, layout);
+            };
+
+
+
+function renderGraphs(data) {
+    // Render total rainfall graph
+    var totalRainfallTrace = {
+        x: data.total_rainfall.map(function (item) { return `${item.Year}-${item.Month}`; }),
+        y: data.total_rainfall.map(function (item) { return item.Total_Rainfall; }),
+        type: 'bar',
+        name: 'Total Rainfall'
+    };
+    var totalRainfallLayout = {
+        bargroupgap: 0.5, // Adjust the value to make bars wider
+        // Add other layout settings here
+    };
+
+    // Render days with rainfall graph
+    var daysWithRainfallTrace = {
+        x: data.days_with_rainfall.map(function (item) { return `${item.Year}-${item.Month}`; }),
+        y: data.days_with_rainfall.map(function (item) { return item.Days_with_Rainfall; }),
+        type: 'bar',
+        name: 'Days with Rainfall'
+    };
+    var daysWithRainfallLayout = {
+        bargroupgap: 0.5, // Adjust the value to make bars wider
+        // Add other layout settings here
+    };
+
+    // Render rainfall categories graph
+    var heavyRainfallTrace = {
+        x: data.rainfall_categories.map(function (item) { return item.Year; }),
+        y: data.rainfall_categories.map(function (item) { return item.Heavy_Rainfall; }),
+        type: 'bar',
+        name: 'Heavy Rainfall'
+    };
+    var veryHeavyRainfallTrace = {
+        x: data.rainfall_categories.map(function (item) { return item.Year; }),
+        y: data.rainfall_categories.map(function (item) { return item.Very_Heavy_Rainfall; }),
+        type: 'bar',
+        name: 'Very Heavy Rainfall'
+    };
+    var extremelyHeavyRainfallTrace = {
+        x: data.rainfall_categories.map(function (item) { return item.Year; }),
+        y: data.rainfall_categories.map(function (item) { return item.Extremely_Heavy_Rainfall; }),
+        type: 'bar',
+        name: 'Extremely Heavy Rainfall'
+    };
+    var rainfallCategoriesLayout = {
+        bargroupgap: 0.5, // Adjust the value to make bars wider
+        // Add other layout settings here
+    };
+
+    // Render the graphs
+    Plotly.newPlot('total-rainfall-graph', [totalRainfallTrace], totalRainfallLayout).then(function() {
+        animateGraph('total-rainfall-graph');
+    });
+    Plotly.newPlot('days-with-rainfall-graph', [daysWithRainfallTrace], daysWithRainfallLayout).then(function() {
+        animateGraph('days-with-rainfall-graph');
+    });
+    Plotly.newPlot('rainfall-categories-graph', [heavyRainfallTrace, veryHeavyRainfallTrace, extremelyHeavyRainfallTrace], rainfallCategoriesLayout).then(function() {
+        animateGraph('rainfall-categories-graph');
+    });
+}
+
+function animateGraph(graphId) {
+    // Get the plotly graph object
+    var graphDiv = document.getElementById(graphId);
+    var graphData = graphDiv.data;
+    var layout = graphDiv.layout;
+
+    // Create initial data values for animation
+    var initialData = [];
+    for (var i = 0; i < graphData.length; i++) {
+        var initialYValues = new Array(graphData[i].y.length).fill(0);
+        initialData.push({ x: graphData[i].x, y: initialYValues });
+    }
+
+    // Animate from initial data to original data
+    Plotly.animate(graphId, {
+        data: graphData.map(function(trace) { return { y: trace.y }; }),
+        layout: layout
+    }, {
+        transition: {
+            duration: 1000,
+            easing: 'cubic-in-out'
+        },
+        frame: {
+            duration: 1000,
+            redraw: false
+        }
+    });
+}
+
+
+            // Theme toggle functionality
+            $('#theme-toggle').change(function () {
+                if ($(this).is(':checked')) {
+                    // Switch to dark theme
+                    $('body').css('background-color', '#1e1e1e');
+                    $('body').css('color', '#ccc');
+                } else {
+                    // Switch to light theme
+                    $('body').css('background-color', '#fff');
+                    $('body').css('color', '#333');
+                }
+            });
+        });
+
+
+////////////////////////////////////////date TO date FORM
+
+     // Function to handle Date-to-Date form submission
+function submitDateToDateForm() {
+    // Retrieve form data
+    var fromDate = $('#from_date').val();
+    var toDate = $('#to_date').val();
+    
+
+ // Check if fromDate and toDate are empty
+ if (fromDate.trim() === '' || toDate.trim() === '') {
+        alert("Please enter both From Date and To Date.");
+        return; // Exit the function without making the AJAX request
+    }
+
+
+    
+
+    // Check if fromDate is before toDate
+    if (fromDate > toDate) {
+        alert("From Date cannot be after To Date");
+        return;
+    }
+    
+    // Make AJAX request to fetch data
+    $.ajax({
+    type: 'POST',
+    url: '/date-range',
+    data: { from_date: fromDate, to_date: toDate },
+    success: function (response) {
+        // Log the response to inspect its structure
+        console.log("Response from backend:", response);
+
+        // Extract datewise_rainfall from the response
+        const result = response.result;
+
+        // Check if datewiseRainfall is present before rendering
+        if (result) {
+            renderDateToDateGraph(result);
+        } else {
+            console.error("datewise_rainfall data is missing in the response");
+        }
+
+        // Optionally handle percentile data
+        const percentileData = response.percentile_result;
+        if (percentileData) {
+            renderPercentileData(percentileData);
+        } else {
+            console.error("percentile_result data is missing in the response");
+        }
+    },
+    error: function (xhr, status, error) {
+        console.error("AJAX error:", error);
+    }
+});
+}
+
+// Function to render Date-to-Date graph
+// Function to render Date-to-Date graph
+function renderDateToDateGraph(data) {
+    // Extract data for the graph
+    var dates = [];
+    var rainfall = [];
+
+    // Iterate through data and handle NaN or undefined values
+    data.datewise_rainfall.forEach(function (item) {
+        // Handle NaN or undefined values for rainfall
+        var rain = item.Rainfall;
+        if (isNaN(rain) || rain === undefined || rain === null) {
+            rain = "N/A";
+        }
+
+        // Add date and rainfall to arrays
+        dates.push(item.Date);
+        rainfall.push(rain);
+    });
+    
+    // Plotly trace for scatter plot or line chart
+    var trace = {
+        x: dates,
+        y: rainfall,
+        mode: 'lines+markers',
+        type: 'scatter'
+    };
+    
+    // Layout settings for the graph
+    var layout = {
+        title: 'Rainfall from ' + dates[0] + ' to ' + dates[dates.length - 1],
+        xaxis: {
+            title: 'Date'
+        },
+        yaxis: {
+            title: 'Rainfall (mm)'
+        },
+        dragmode: 'pan' // Enable panning
+    };
+    
+   // Render the graph
+    Plotly.newPlot('date-to-date-graph', [trace], layout);
+
+    
+   
+}
+
+// Function to render Percentile Data graph
+function renderPercentileData(percentileData) {
+    // Extract data for the graph
+    var dates = [];
+    var percentiles = [];
+
+    // Iterate through percentile data
+    Object.keys(percentileData).forEach(function (key) {
+        if (percentileData[key].percentile_95th !== null) {
+            dates.push(key);
+            percentiles.push(percentileData[key].percentile_95th);
+        }
+    });
+
+    // Plotly trace for line chart
+    var trace = {
+        x: dates,
+        y: percentiles,
+        mode: 'lines+markers',
+        type: 'scatter'
+    };
+
+    // Layout settings for the graph
+    var layout = {
+        title: '95th Percentile Rainfall',
+        xaxis: {
+            title: 'Date'
+        },
+        yaxis: {
+            title: 'Rainfall (mm)'
+        },
+        dragmode: 'pan' // Enable panning
+    };
+
+    // Render the graph
+    Plotly.newPlot('percentile-graph', [trace], layout);
+}
+   
+    </script>
+</body>
+
+</html>
